@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.PRACTICEMODES;
 
 public class VariblesTest {
     // data type

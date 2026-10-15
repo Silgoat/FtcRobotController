@@ -1,9 +1,9 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.PRACTICEMODES;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.MOTORTEST.MotorSet;
+import org.firstinspires.ftc.teamcode.MotorSet;
 
 @TeleOp
 public class DcMotorPractice extends OpMode {
