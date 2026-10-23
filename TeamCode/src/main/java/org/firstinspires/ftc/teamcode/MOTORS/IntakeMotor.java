@@ -16,7 +16,7 @@ public class IntakeMotor extends LinearOpMode {
     //   REV Core Hex                      -> 288
     private static final double TICKS_PER_REV = 288.0;
 
-    private static final double TARGET_RPM = 6000.0;
+    private static final double TARGET_RPM = -3000.0;
     private static final double TARGET_TICKS_PER_SEC = TARGET_RPM / 60.0 * TICKS_PER_REV;
 
     private DcMotorEx intakeMotor;

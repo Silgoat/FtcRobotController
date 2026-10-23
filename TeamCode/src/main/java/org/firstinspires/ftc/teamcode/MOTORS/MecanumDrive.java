@@ -22,10 +22,11 @@ public class MecanumDrive {
         frontLeftMotor.setDirection(DcMotor.Direction.REVERSE);
         backLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
+        // Current code in MecanumDrive.java:
         frontRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        frontRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER); // Duplicated
+        backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);  // Duplicated
 
         imu = hwmap.get(IMU.class, "imu");
 
