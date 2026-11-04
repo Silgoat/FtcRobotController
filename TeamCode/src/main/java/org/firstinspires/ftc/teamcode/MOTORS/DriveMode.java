@@ -4,12 +4,12 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @TeleOp
+@SuppressWarnings("unused")
 public class DriveMode extends OpMode {
-    MecanumDrive drive = new MecanumDrive();
-    IntakeMotor goon = new IntakeMotor();
+    private final MecanumDrive drive = new MecanumDrive();
+    private final IntakeMotor goon = new IntakeMotor();
 
-    double forward, strafe, rotate;
-    boolean lastA = false;
+    private boolean lastA = false;
 
     @Override
     public void init() {
@@ -19,9 +19,9 @@ public class DriveMode extends OpMode {
 
     @Override
     public void loop() {
-        forward = gamepad1.left_stick_y;
-        strafe = gamepad1.left_stick_x;
-        rotate = gamepad1.right_stick_x;
+        double forward = gamepad1.left_stick_y;
+        double strafe = gamepad1.left_stick_x;
+        double rotate = gamepad1.right_stick_x;
 
         drive.driveFieldRelative(forward, strafe, rotate);
 
@@ -30,5 +30,11 @@ public class DriveMode extends OpMode {
             goon.toggleIntakeMotor();
         }
         lastA = gamepad1.a;
+
+        telemetry.addData("Intake Status", goon.isIntakeOn() ? "ON" : "OFF");
+        telemetry.addData("Intake Speed", "%.0f%%", Math.abs(goon.getSpeed() * 100.0));
+        telemetry.addData("Actual RPM", "%.0f RPM", goon.getActualRpm());
+        telemetry.addData("Current Draw", "%.2f A", goon.getCurrentAmps());
+        telemetry.update();
     }
 }

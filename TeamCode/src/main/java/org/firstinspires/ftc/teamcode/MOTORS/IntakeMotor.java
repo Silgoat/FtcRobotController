@@ -1,60 +1,111 @@
 package org.firstinspires.ftc.teamcode.MOTORS;
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
-@TeleOp
-public class IntakeMotor extends LinearOpMode {
+@SuppressWarnings("unused")
+public class IntakeMotor {
 
-    // ---- Change these to match your motor ----
-    // Encoder ticks per MOTOR OUTPUT SHAFT revolution:
-    //   goBILDA 5202/5203 6000 RPM (1:1)  -> 28
-    //   goBILDA 5203 1620 RPM (3.7:1)     -> 103.8
-    //   REV HD Hex (no gearbox)           -> 28
-    //   REV Core Hex                      -> 288
-    private static final double TICKS_PER_REV = 288.0;
+    // ====================================================================
+    // INTAKE SPEED CONFIGURATION
+    // Change this value directly to adjust your intake motor speed in code:
+    //   -1.0 = 100% Max Speed (Full Intake)
+    //   -0.8 = 80% Speed
+    //   -0.5 = 50% Speed
+    //    0.0 = Stopped
+    //   +1.0 = Full Speed Reverse (Eject)
+    // ====================================================================
+    public static double INTAKE_SPEED = -1.0;
 
-    private static final double TARGET_RPM = -3000.0;
-    private static final double TARGET_TICKS_PER_SEC = TARGET_RPM / 60.0 * TICKS_PER_REV;
+    // Encoder ticks per revolution (e.g. 28.0 for 1:1 goBILDA 6000 RPM, 288.0 for REV Core Hex)
+    private static final double TICKS_PER_REV = 28.0;
 
     private DcMotorEx intakeMotor;
-
     private boolean intakeOn = false;
-    private boolean lastA = false;
 
-    @Override
-    public void runOpMode() {
+    /**
+     * Initializes the intake motor.
+     */
+    public void init(HardwareMap hwMap) {
         // "intake" must match the motor name in your Robot Configuration
-        intakeMotor = hardwareMap.get(DcMotorEx.class, "intake");
-        intakeMotor.setDirection(DcMotor.Direction.FORWARD); // flip to REVERSE if it spins the wrong way
-        intakeMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        intakeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER); // required for setVelocity()
-        intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        intakeMotor = hwMap.get(DcMotorEx.class, "intake");
+        intakeMotor.setDirection(DcMotor.Direction.FORWARD);
+        
+        // Use RUN_WITHOUT_ENCODER for maximum direct power control
+        intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    }
 
-        telemetry.addLine("Press gamepad1 A to toggle intake on/off");
-        telemetry.update();
-
-        waitForStart();
-
-        while (opModeIsActive()) {
-            // Rising-edge detection: toggle once per press, not every loop while held
-            boolean a = gamepad1.a;
-            if (a && !lastA) {
-                intakeOn = !intakeOn;
-            }
-            lastA = a;
-
-            intakeMotor.setVelocity(intakeOn ? TARGET_TICKS_PER_SEC : 0);
-
-            double actualRpm = intakeMotor.getVelocity() / TICKS_PER_REV * 60.0;
-            telemetry.addData("Intake", intakeOn ? "ON" : "OFF");
-            telemetry.addData("Target RPM", TARGET_RPM);
-            telemetry.addData("Actual RPM", "%.0f", actualRpm);
-            telemetry.update();
+    /**
+     * Toggles the intake motor on or off using the INTAKE_SPEED set above.
+     */
+    public void toggleIntakeMotor() {
+        intakeOn = !intakeOn;
+        if (intakeMotor != null) {
+            intakeMotor.setPower(intakeOn ? INTAKE_SPEED : 0.0);
         }
+    }
 
-        intakeMotor.setVelocity(0);
+    /**
+     * Explicitly turns the intake on or off.
+     */
+    public void setIntakeOn(boolean on) {
+        intakeOn = on;
+        if (intakeMotor != null) {
+            intakeMotor.setPower(intakeOn ? INTAKE_SPEED : 0.0);
+        }
+    }
+
+    /**
+     * Adjust or set speed programmatically in code (-1.0 to 1.0).
+     */
+    public void setSpeed(double speed) {
+        INTAKE_SPEED = speed;
+        if (intakeOn && intakeMotor != null) {
+            intakeMotor.setPower(INTAKE_SPEED);
+        }
+    }
+
+    /**
+     * Returns the configured intake speed setting.
+     */
+    public double getSpeed() {
+        return INTAKE_SPEED;
+    }
+
+    /**
+     * Sets custom motor power directly (-1.0 to 1.0).
+     */
+    public void setPower(double power) {
+        intakeOn = (power != 0.0);
+        if (intakeMotor != null) {
+            intakeMotor.setPower(power);
+        }
+    }
+
+    public boolean isIntakeOn() {
+        return intakeOn;
+    }
+
+    /**
+     * Returns actual estimated RPM from encoder velocity.
+     */
+    public double getActualRpm() {
+        if (intakeMotor != null) {
+            return intakeMotor.getVelocity() / TICKS_PER_REV * 60.0;
+        }
+        return 0.0;
+    }
+
+    /**
+     * Returns motor current draw in Amps.
+     */
+    public double getCurrentAmps() {
+        if (intakeMotor != null) {
+            return intakeMotor.getCurrent(CurrentUnit.AMPS);
+        }
+        return 0.0;
     }
 }
