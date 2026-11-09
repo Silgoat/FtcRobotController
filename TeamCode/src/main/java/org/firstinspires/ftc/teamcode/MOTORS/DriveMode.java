@@ -1,23 +1,24 @@
 package org.firstinspires.ftc.teamcode.MOTORS;
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-
-import org.firstinspires.ftc.teamcode.Flywheel;
 
 @TeleOp
 @SuppressWarnings("unused")
 public class DriveMode extends OpMode {
     private final MecanumDrive drive = new MecanumDrive();
     private final IntakeMotor goon = new IntakeMotor();
+    private final Flywheel flywheel = new Flywheel();
 
     private boolean lastA = false;
+    private boolean flywheelOn = false;
+    private boolean lastLeftBumper = false;
 
     @Override
     public void init() {
         drive.init(hardwareMap);
         goon.init(hardwareMap);
+        flywheel.init(hardwareMap);
     }
 
     @Override
@@ -34,45 +35,23 @@ public class DriveMode extends OpMode {
         }
         lastA = gamepad1.a;
 
+        // Toggle flywheel with Left Bumper
+        if (gamepad1.left_bumper && !lastLeftBumper) {
+            flywheelOn = !flywheelOn;
+        }
+        lastLeftBumper = gamepad1.left_bumper;
+
+        if (flywheelOn) {
+            flywheel.runMax();
+        } else {
+            flywheel.stop();
+        }
+
         telemetry.addData("Intake Status", goon.isIntakeOn() ? "ON" : "OFF");
         telemetry.addData("Intake Speed", "%.0f%%", Math.abs(goon.getSpeed() * 100.0));
-        telemetry.addData("Actual RPM", "%.0f RPM", goon.getActualRpm());
-        telemetry.addData("Current Draw", "%.2f A", goon.getCurrentAmps());
+        telemetry.addData("Actual Intake RPM", "%.0f RPM", goon.getActualRpm());
+        telemetry.addData("Flywheel Status", flywheelOn ? "RUNNING" : "STOPPED");
+        telemetry.addData("Flywheel RPM", "%.0f RPM", flywheel.getRPM());
         telemetry.update();
     }
-
-    @TeleOp(name = "My TeleOp")
-    public class MyTeleOp extends LinearOpMode {
-
-        // 1) Create the flywheel
-        private Flywheel flywheel = new Flywheel();
-
-        @Override
-        public void runOpMode() {
-
-            // ... your existing hardware init ...
-
-            // 2) Initialize it
-            flywheel.init(hardwareMap);
-
-            waitForStart();
-
-            boolean flywheelOn = false;
-            boolean lastBumper = false;
-
-            while (opModeIsActive()) {
-
-                // ... your existing drive code ...
-
-                // 3) Left bumper: hold to run at max, release to stop
-                if (gamepad1.left_bumper && !lastBumper) {
-                    flywheelOn = !flywheelOn;
-                }
-                lastBumper = gamepad1.left_bumper;
-
-                if (flywheelOn) flywheel.runMax(); else flywheel.stop();
-            }
-        }
-    }
-
 }
